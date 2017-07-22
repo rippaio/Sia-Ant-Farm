@@ -17,6 +17,7 @@ type AntConfig struct {
 	APIAddr         string `json:",omitempty"`
 	RPCAddr         string `json:",omitempty"`
 	HostAddr        string `json:",omitempty"`
+	PoolAddr        string `json:",omitempty"`
 	SiaDirectory    string `json:",omitempty"`
 	Name            string `json:",omitempty"`
 	SiadPath        string
@@ -27,8 +28,9 @@ type AntConfig struct {
 // An Ant is a Sia Client programmed with network user stories. It executes
 // these user stories and reports on their successfulness.
 type Ant struct {
-	APIAddr string
-	RPCAddr string
+	APIAddr  string
+	RPCAddr  string
+	PoolAddr string
 
 	Config AntConfig
 
@@ -54,6 +56,11 @@ func clearPorts(config AntConfig) error {
 		return err
 	}
 
+	pooladdr, err := net.ResolveTCPAddr("tcp", config.PoolAddr)
+	if err != nil {
+		return err
+	}
+
 	upnprouter, err := upnp.Discover()
 	if err != nil {
 		return err
@@ -65,6 +72,11 @@ func clearPorts(config AntConfig) error {
 	}
 
 	err = upnprouter.Clear(uint16(hostaddr.Port))
+	if err != nil {
+		return err
+	}
+
+	err = upnprouter.Clear(uint16(pooladdr.Port))
 	if err != nil {
 		return err
 	}
@@ -82,7 +94,8 @@ func New(config AntConfig) (*Ant, error) {
 	}
 
 	// Construct the ant's Siad instance
-	siad, err := newSiad(config.SiadPath, config.SiaDirectory, config.APIAddr, config.RPCAddr, config.HostAddr)
+	log.Println("config.PoolAddr: " + config.PoolAddr)
+	siad, err := newSiad(config.SiadPath, config.SiaDirectory, config.APIAddr, config.RPCAddr, config.HostAddr, config.PoolAddr)
 	if err != nil {
 		return nil, err
 	}
@@ -117,9 +130,11 @@ func New(config AntConfig) (*Ant, error) {
 	}
 
 	return &Ant{
-		APIAddr: config.APIAddr,
-		RPCAddr: config.RPCAddr,
-		Config:  config,
+		APIAddr:  config.APIAddr,
+		RPCAddr:  config.RPCAddr,
+		PoolAddr: config.PoolAddr,
+
+		Config: config,
 
 		siad: siad,
 		jr:   j,
