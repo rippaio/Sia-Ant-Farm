@@ -1,0 +1,22 @@
+{
+	"antconfigs": [{
+			"Name": "nick-miner",
+			"jobs": [
+				"gateway",
+				"miner",
+				"host"
+            ],
+            "PoolAddr": "127.0.0.1:6666",
+            "APIAddr": "127.0.0.1:6000"
+		},
+		{
+			"Name": "nick-host",
+			"jobs": [
+				"host",
+				"gateway"
+			],
+			"desiredcurrency": 100000
+		}
+	],
+	"autoconnect": true
+}
