@@ -31,7 +31,7 @@ func newSiad(siadPath string, datadir string, apiAddr string, rpcAddr string, ho
 	if err != nil {
 		return nil, err
 	}
-	cmd := exec.Command(siadPath, "--modules=cgthmrw", "--no-bootstrap", "--sia-directory="+datadir, "--api-addr="+apiAddr, "--rpc-addr="+rpcAddr, "--host-addr="+hostAddr, "--pool-addr="+poolAddr)
+	cmd := exec.Command(siadPath, "--modules=cgthmrwe", "--no-bootstrap", "--sia-directory="+datadir, "--api-addr="+apiAddr, "--rpc-addr="+rpcAddr, "--host-addr="+hostAddr, "--pool-addr="+poolAddr)
 	cmd.Stderr = logfile
 	cmd.Stdout = logfile
 
@@ -78,7 +78,7 @@ func stopSiad(apiAddr string, process *os.Process) {
 	}()
 	select {
 	case <-done:
-	case <-time.After(120 * time.Second):
+	case <-time.After(60 * time.Second):
 		process.Kill()
 	}
 }
